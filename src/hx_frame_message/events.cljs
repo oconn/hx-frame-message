@@ -20,11 +20,17 @@
 
 (defn- create-alert
   [{:keys [db]} [_ alert]]
-  {:db db})
+  {:db (update-in db
+                  [:hx-frame-message :alerts]
+                  conj
+                  (assoc alert :uuid (str (random-uuid))))})
 
 (defn- clear-alert
-  [{:keys [db]} [_ alert]]
-  {:db db})
+  [{:keys [db]} [_ {clearing-alert-uuid :uuid}]]
+  {:db (update-in db
+                  [:hx-frame-message :alerts]
+                  (partial filterv (fn [{alert-uuid :uuid}]
+                                     (not= alert-uuid clearing-alert-uuid))))})
 
 (defn- create-toast
   [{:keys [db]} [_ {:keys [message status time]

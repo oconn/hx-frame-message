@@ -34,22 +34,81 @@
    [:p {:class ["message--toast-message"]}
     message]])
 
+(defnc ToastContainer
+  [{:keys [toasts TransitionGroup CSSTransition]}]
+  (if (and (some? TransitionGroup)
+           (some? CSSTransition))
+    [:ul {:class ["message--toasts-container"]}
+     [TransitionGroup {:component nil}
+      (for [{:keys [uuid] :as toast} toasts]
+        [CSSTransition {:timeout 300
+                        :key uuid
+                        :in true
+                        :appear true
+                        :mountOnEnter true
+                        :unmountOnExit true
+                        :classNames "message--item"}
+         [Toast toast]])]]
+    [:ul {:class ["message--toasts-container"]}
+     (for [{:keys [uuid] :as toast} toasts]
+       ^{:key uuid} [Toast toast])]))
+
+(defnc AlertContainer
+  [{:keys [alert CSSTransition]}]
+  (let [{:keys [message
+                title
+                confirm-action
+                confirm-copy
+                deny-action
+                deny-copy
+                confirm-only
+                confirm-status]
+         :or {confirm-action identity
+              confirm-copy "Yes"
+              deny-action identity
+              deny-copy "No"
+              confirm-status :default
+              confirm-only false}}
+        alert]
+
+    (when (some? alert)
+      [:div {:class ["message--alert-underlay"]}
+       [:div {:class ["message--alert-container"]}
+        (when (some? title)
+          [:h3 {:class ["message--alert-title"]} title])
+
+        [:p {:class ["message--alert-message"]} message]
+
+        [:div {:class (cond-> ["message--actions-container"]
+                        (true? confirm-only)
+                        (conj "message--actions-container-confirm-only"))}
+         [:button
+          {:class ["message--actions-confirm-button"
+                   (str "message--actions-confirm-button-"
+                        (name confirm-status))]
+           :on-click (fn []
+                       (hx-frame/dispatch [:hx-frame-message/clear-alert
+                                           {:uuid (:uuid alert)}])
+                       (confirm-action))}
+          confirm-copy]
+
+         (when-not (true? confirm-only)
+           [:button
+            {:class ["message--actions-deny-button"]
+             :on-click (fn []
+                         (hx-frame/dispatch [:hx-frame-message/clear-alert
+                                             {:uuid (:uuid alert)}])
+                         (deny-action))}
+            deny-copy])]]])))
+
 (defnc HXFrameMessage
-  [{:keys [TransitionGroup CSSTransition]}]
-  (let [toasts (hx-frame/subscribe [:hx-frame-message/toasts])]
-    (if (and (some? TransitionGroup)
-             (some? CSSTransition))
-      [:ul {:class ["message--toasts-container"]}
-       [TransitionGroup {:component nil}
-        (for [{:keys [uuid] :as toast} toasts]
-          [CSSTransition {:timeout 300
-                          :key uuid
-                          :in true
-                          :appear true
-                          :mountOnEnter true
-                          :unmountOnExit true
-                          :classNames "message--item"}
-           [Toast toast]])]]
-      [:ul {:class ["message--toasts-container"]}
-       (for [{:keys [uuid] :as toast} toasts]
-         ^{:key uuid} [Toast toast])])))
+  [props]
+  (let [toasts (hx-frame/subscribe [:hx-frame-message/toasts])
+        alert (hx-frame/subscribe [:hx-frame-message/alert])]
+    [:<>
+     [ToastContainer (merge
+                      (dissoc props :children)
+                      {:toasts toasts})]
+     [AlertContainer (merge
+                      (dissoc props :children)
+                      {:alert alert})]]))

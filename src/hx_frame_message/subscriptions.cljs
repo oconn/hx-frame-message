@@ -5,7 +5,12 @@
   [{:keys [hx-frame-message]}]
   (:toasts hx-frame-message))
 
+(defn alert
+  [{:keys [hx-frame-message]}]
+  (-> hx-frame-message :alerts first))
+
 (defn register-subscriptions
   []
 
-  (reg-sub :hx-frame-message/toasts toasts))
+  (reg-sub :hx-frame-message/toasts toasts)
+  (reg-sub :hx-frame-message/alert alert))

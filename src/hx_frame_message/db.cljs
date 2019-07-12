@@ -8,8 +8,39 @@
   {:hx-frame-message {:toasts []
                       :alerts []}})
 
-;; Specs for each individual request
-(s/def :hx-frame-message/toasts (s/coll-of any?))
-(s/def :hx-frame-message/alerts (s/coll-of any?))
+;; Shared
+(s/def ::message string?)
+(s/def ::uuid string?)
+
+;; Toast
+(s/def ::time number?)
+(s/def ::status #{:info :error :success})
+
+(s/def ::toast (s/keys :req-un [::time
+                                ::status
+                                ::message
+                                ::uuid]))
+
+;; Alert
+(s/def ::title string?)
+(s/def ::confirm-only boolean?)
+(s/def ::confirm-action fn?)
+(s/def ::confirm-copy string?)
+(s/def ::confirm-status #{:default :warning})
+(s/def ::deny-action fn?)
+(s/def ::deny-copy string?)
+
+(s/def ::alert (s/keys :req-un [::message
+                                ::uuid]
+                       :opt-un [::title
+                                ::confirm-action
+                                ::confirm-copy
+                                ::deny-action
+                                ::deny-copy
+                                ::confirm-only
+                                ::confirm-status]))
+
+(s/def :hx-frame-message/toasts (s/coll-of ::toast))
+(s/def :hx-frame-message/alerts (s/coll-of ::alert))
 (s/def ::hx-frame-message (s/keys :req-un [::toasts
                                            ::alerts]))
