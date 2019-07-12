@@ -1,5 +1,7 @@
 (ns hx-frame-message.core
   (:require
+   [goog.object :as gobj]
+   [hx.hooks :as hooks]
    [hx.react :refer [defnc]]
    [hx-frame.core :as hx-frame]
    [hx-frame-message.events :as hxm-events]
@@ -53,6 +55,8 @@
      (for [{:keys [uuid] :as toast} toasts]
        ^{:key uuid} [Toast toast])]))
 
+(def no-scroll-class "hx-frame-message--no-scroll")
+
 (defnc AlertContainer
   [{:keys [alert CSSTransition]}]
   (let [{:keys [message
@@ -70,6 +74,19 @@
               confirm-status :default
               confirm-only false}}
         alert]
+
+    (hooks/useEffect
+     (fn []
+       (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
+         (if (and (some? alert)
+                  (some? class-list))
+           (js-invoke class-list "add" no-scroll-class)
+           (js-invoke class-list "remove" no-scroll-class)))
+       (fn []
+         (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
+           (when (some? class-list)
+             (js-invoke class-list "remove" no-scroll-class)))))
+     [(:uuid alert)])
 
     (when (some? alert)
       [:div {:class ["message--alert-underlay"]}
