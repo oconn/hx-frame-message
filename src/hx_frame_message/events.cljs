@@ -54,26 +54,28 @@
   [{:keys [clear-alert-interceptors
            clear-toast-interceptors
            create-alert-interceptors
-           create-toast-interceptors]
+           create-toast-interceptors
+           message-interceptors]
     :or {clear-alert-interceptors []
          clear-toast-interceptors []
          create-alert-interceptors []
-         create-toast-interceptors []}}]
+         create-toast-interceptors []
+         message-interceptors []}}]
 
   (reg-event-fx :hx-frame-message/create-alert
-                create-alert-interceptors
+                (into message-interceptors create-alert-interceptors)
                 create-alert)
 
   (reg-event-fx :hx-frame-message/clear-alert
-                clear-alert-interceptors
+                (into message-interceptors clear-alert-interceptors)
                 clear-alert)
 
   (reg-event-fx :hx-frame-message/create-toast
-                create-toast-interceptors
+                (into message-interceptors create-toast-interceptors)
                 create-toast)
 
   (reg-event-fx :hx-frame-message/clear-toast
-                clear-toast-interceptors
+                (into message-interceptors clear-toast-interceptors)
                 clear-toast)
 
   (reg-fx :schedule-toast-dismissal schedule-toast-dismissal))
