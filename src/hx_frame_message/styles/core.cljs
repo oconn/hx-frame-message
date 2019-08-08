@@ -67,8 +67,8 @@
     :align-items :center}
 
    ".message--alert-container"
-   {:width "100%"
-    :max-width "400px"
+   {:width "620px"
+    :max-width "100%"
     :padding [(gs [:spacing :p20])
               (gs [:spacing :p40])]
     :background-color (gs [:colors :true-white])
@@ -93,7 +93,7 @@
     :margin-top (gs [:spacing :p28])
 
     "& > button"
-    {:width "calc(50% - 10px)"
+    {:min-width "calc(50% - 10px)"
 
      "&:first-child"
      {:margin-right "20px"}}}
