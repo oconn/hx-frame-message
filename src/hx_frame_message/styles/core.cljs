@@ -47,7 +47,7 @@
 
    ".message--toast-message"
    (create-font-styles
-    {:style :body-20
+    {:style :caption-20
      :color :true-white
      :family :secondary})
 
@@ -83,7 +83,7 @@
 
    ".message--alert-message"
    (create-font-styles
-    {:style :body-20
+    {:style :caption-30
      :color :gray-scale-500
      :family :primary})
 
