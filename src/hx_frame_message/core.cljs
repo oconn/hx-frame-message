@@ -55,10 +55,8 @@
      (for [{:keys [uuid] :as toast} toasts]
        ^{:key uuid} [Toast toast])]))
 
-(def no-scroll-class "hx-frame-message--no-scroll")
-
 (defnc AlertContainer
-  [{:keys [alert CSSTransition]}]
+  [{:keys [alert]}]
   (let [{:keys [message
                 title
                 confirm-action
@@ -74,20 +72,6 @@
               confirm-status :default
               confirm-only false}}
         alert]
-
-    (hooks/useEffect
-     (fn []
-       (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
-         (if (and (some? alert)
-                  (some? class-list))
-           (js-invoke class-list "add" no-scroll-class)
-           (js-invoke class-list "remove" no-scroll-class)))
-       (fn []
-         (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
-           (when (some? class-list)
-             (js-invoke class-list "remove" no-scroll-class)))))
-     [(:uuid alert)])
-
     (when (some? alert)
       [:div {:class ["message--alert-underlay"]}
        [:div {:class ["message--alert-container"]}
@@ -118,11 +102,45 @@
                          (deny-action))}
             deny-copy])]]])))
 
+(defnc ModalContainer
+  [{:keys [modal]}]
+  (let [{Component :component} modal]
+    (when (some? modal)
+      [:div {:class ["message--modal-underlay"]}
+       [:div {:class ["message--modal-container"]}
+        [:button {:class ["message--modal-close-btn"]
+                  :on-click #(hx-frame/dispatch
+                              [:hx-frame-message/clear-modal])}
+         "x"]
+        [:div {:class ["message--modal-body"]}
+         Component]]])))
+
+(def no-scroll-class "hx-frame-message--no-scroll")
+
 (defnc HXFrameMessage
   [props]
   (let [toasts (hx-frame/subscribe [:hx-frame-message/toasts])
-        alert (hx-frame/subscribe [:hx-frame-message/alert])]
+        alert (hx-frame/subscribe [:hx-frame-message/alert])
+        modal (hx-frame/subscribe [:hx-frame-message/modal])]
+
+    (hooks/useEffect
+     (fn []
+       (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
+         (if (and (some? class-list)
+                  (or (some? alert)
+                      (some? modal)))
+           (js-invoke class-list "add" no-scroll-class)
+           (js-invoke class-list "remove" no-scroll-class)))
+       (fn []
+         (let [class-list (gobj/getValueByKeys js/document "body" "classList")]
+           (when (some? class-list)
+             (js-invoke class-list "remove" no-scroll-class)))))
+     [(str (:uuid alert) "-" (:uuid modal))])
+
     [:<>
+     [ModalContainer (merge
+                      (dissoc props :children)
+                      {:modal modal})]
      [ToastContainer (merge
                       (dissoc props :children)
                       {:toasts toasts})]

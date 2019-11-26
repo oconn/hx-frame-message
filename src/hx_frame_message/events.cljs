@@ -32,6 +32,15 @@
                   (partial filterv (fn [{alert-uuid :uuid}]
                                      (not= alert-uuid clearing-alert-uuid))))})
 
+(defn- create-modal
+  [{:keys [db]} [_ modal]]
+  {:db (assoc-in db [:hx-frame-message :modal]
+                 (assoc modal :uuid (str (random-uuid))))})
+
+(defn- clear-modal
+  [{:keys [db]} _]
+  {:db (assoc-in db [:hx-frame-message :modal] nil)})
+
 (defn- create-toast
   [{:keys [db]} [_ {:keys [message status time]
                     :or {time 3000
@@ -53,14 +62,26 @@
 (defn register-events
   [{:keys [clear-alert-interceptors
            clear-toast-interceptors
+           clear-modal-interceptors
            create-alert-interceptors
            create-toast-interceptors
+           create-modal-interceptors
            message-interceptors]
     :or {clear-alert-interceptors []
          clear-toast-interceptors []
+         clear-modal-interceptors []
          create-alert-interceptors []
          create-toast-interceptors []
+         create-modal-interceptors []
          message-interceptors []}}]
+
+  (reg-event-fx :hx-frame-message/create-modal
+                (into message-interceptors create-modal-interceptors)
+                create-modal)
+
+  (reg-event-fx :hx-frame-message/clear-modal
+                (into message-interceptors clear-modal-interceptors)
+                clear-modal)
 
   (reg-event-fx :hx-frame-message/create-alert
                 (into message-interceptors create-alert-interceptors)

@@ -147,4 +147,59 @@
 
     "&:hover"
     {:background-color (gs [:colors :primary-500])
-     :color (gs [:colors :true-white])}}})
+     :color (gs [:colors :true-white])}}
+
+   ;; Modal Styles
+   ".message--modal-underlay"
+   {:position :absolute
+    :width "100%"
+    :height "100%"
+    :top (gs [:spacing :p0])
+    :left (gs [:spacing :p0])
+    :background-color "rgba(0,0,0,0.35)"
+    :display :flex
+    :justify-content :center
+    :align-items :center}
+
+   ".message--modal-container"
+   {:background-color (gs [:colors :true-white])
+    :padding (gs [:spacing :p20])
+    :border-radius (gs [:radius :r4])
+    :position :relative
+    :min-width "400px"
+    :max-width "100%"
+    :min-height "300px"
+    :max-height "100%"
+    :display :flex
+    :justify-content :center
+    :align-items :center}
+
+   ".message--modal-close-btn"
+   (merge
+    (create-font-styles {:style :caption-30
+                         :color :primary-500
+                         :family :primary})
+    {:padding (gs [:spacing :p0])
+     :white-space :nowrap
+     :text-decoration :none
+     :cursor :pointer
+     :outline :none
+     :transition (str "background-color 0.2s ease, "
+                      "color 0.2s ease, "
+                      "border-color 0.2s ease")
+     :border (gs [:borders :border-primary-500-2])
+     :border-radius "50%"
+     :width (gs [:spacing :p32])
+     :height (gs [:spacing :p32])
+     :display :flex
+     :justify-content :center
+     :align-items :center
+     :position :absolute
+     :top (str "-" (gs [:spacing :p16]))
+     :right (str "-" (gs [:spacing :p16]))
+
+     "&:disabled"
+     {:background-color (gs [:colors :gray-scale-50])
+      :color (gs [:colors :gray-scale-300])
+      :border (gs [:borders :border-100-2])
+      :cursor :default}})})

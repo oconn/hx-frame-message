@@ -1,16 +1,21 @@
 (ns hx-frame-message.db
   (:require [cljs.spec.alpha :as s]))
 
+
 (def initial-state
   "Initial hx-frame-message state.
 
   All requests are associated into a map."
   {:hx-frame-message {:toasts []
-                      :alerts []}})
+                      :alerts []
+                      :modal nil}})
 
 ;; Shared
 (s/def ::message string?)
 (s/def ::uuid string?)
+
+;; Modal
+(s/def ::modal (s/nilable (s/keys :req-un [::uuid])))
 
 ;; Toast
 (s/def ::time number?)
