@@ -151,7 +151,7 @@
 
    ;; Modal Styles
    ".message--modal-underlay"
-   {:position :absolute
+   {:position :fixed
     :width "100%"
     :height "100%"
     :top (gs [:spacing :p0])
